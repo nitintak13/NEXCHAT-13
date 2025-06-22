@@ -18,7 +18,6 @@ const ChatContainer = () => {
   } = useContext(ChatContext);
 
   useEffect(() => {
-    // Whenever users change, sync selectedUser if needed
     const updatedUser = users.find((u) => u._id === selectedUser?._id);
     if (
       updatedUser &&
@@ -31,12 +30,9 @@ const ChatContainer = () => {
 
   const [input, setInput] = useState("");
 
-  // NEW: track which messages still show “Undo”
   const [undoVisible, setUndoVisible] = useState({});
 
   const scrollEnd = useRef();
-
-  //handle sending a message
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (input.trim() === "") return null;
@@ -46,12 +42,10 @@ const ChatContainer = () => {
   };
   useEffect(() => {
     messages.forEach((msg) => {
-      // only schedule a timer for messages YOU sent
       if (msg.senderId !== authUser._id) return;
 
       const age = Date.now() - new Date(msg.createdAt).getTime();
-      // only if within the 10s window and not yet initialized
-      if (age < 10000 && undoVisible[msg._id] === undefined) {
+        if (age < 10000 && undoVisible[msg._id] === undefined) {
         setUndoVisible((u) => ({ ...u, [msg._id]: true }));
 
         setTimeout(
@@ -60,13 +54,13 @@ const ChatContainer = () => {
               ...u,
               [msg._id]: false,
             })),
-          // wait only the remaining time
+         
           10000 - age
         );
       }
     });
   }, [messages, authUser._id, undoVisible]);
-  //handle seding an image
+ 
   const handleSendImage = async (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
@@ -156,9 +150,9 @@ const ChatContainer = () => {
             {msg.senderId === authUser._id && undoVisible[msg._id] && (
               <button
                 onClick={() => {
-                  // Optimistically remove from UI
+                  
                   setMessages((prev) => prev.filter((m) => m._id !== msg._id));
-                  undoMessage(msg._id); // Backend + socket
+                  undoMessage(msg._id); 
                 }}
                 className="text-xs text-red-400 underline ml-2"
               >
@@ -185,7 +179,7 @@ const ChatContainer = () => {
       </div>
 
       {/* Bottom area */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3">
+      <div className=" absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3">
         <div className="flex-1 flex items-center bg-gray-100/12 px-3 rounded-full">
           <input
             onChange={(e) => setInput(e.target.value)}
@@ -193,7 +187,7 @@ const ChatContainer = () => {
             onKeyDown={(e) => (e.key === "Enter" ? handleSendMessage(e) : null)}
             type="text"
             placeholder="send a message"
-            className="flex-1 text-sm p-3 border-none rounded-lg outline-none text-white placeholder-gray-400"
+            className="flex-1 text-sm p-2 border-none rounded-lg outline-none text-white placeholder-gray-400"
           />
           <input
             onChange={handleSendImage}
